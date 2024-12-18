@@ -1,8 +1,0 @@
-{
-  "routes": [
-    {
-      "src": "/payment-standardplan",
-      "dest": "/payment-standardplan/index.html"
-    }
-  ]
-}
