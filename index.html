@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure Payment Page</title>
+  <style>
+    /* General reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8f9fa;
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      padding: 30px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .container h4 {
+      text-align: center;
+      color: #007bff;
+      margin-bottom: 10px;
+      font-size: 1.5em;
+    }
+
+    .container .plan {
+      text-align: center;
+      font-size: 2.5em;
+      font-weight: bold;
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1em;
+      margin-bottom: 10px;
+    }
+
+    input:focus {
+      border-color: #007bff;
+      outline: none;
+    }
+
+    .amount-display {
+      background: #e9ecef;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.2em;
+      color: #28a745;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #007bff;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      font-size: 1.1em;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Standard Plan Heading -->
+  <div class="plan">Premium Plan</div>
+  <h4>Secure Payment</h4>
+
+  <!-- Form Fields -->
+  <label for="name">Full Name:</label>
+  <input type="text" id="name" name="name" placeholder="Enter your name" required>
+
+  <label for="email">Email Address:</label>
+  <input type="email" id="email" name="email" placeholder="Enter your email" required>
+
+  <label for="mobile">Mobile Number:</label>
+  <input type="text" id="mobile" name="mobile" placeholder="Enter your mobile number" required>
+
+  <!-- New Host ID Field -->
+  <label for="hostId">Referral ID:</label>
+  <input type="text" id="hostId" name="hostId" placeholder="Enter Referral ID" required>
+
+  <label for="guests">Number of Guests:</label>
+  <input type="number" id="guests" name="guests" min="1" value="1" onchange="calculateAmount()">
+
+  <!-- Total Amount Display -->
+  <div class="amount-display">
+    Total Amount: ₹<span id="total-amount">12500</span>
+  </div>
+
+  <button onclick="submitPaymentForm()">Proceed to Pay</button>
+</div>
+
+<script>
+  // Constants for cost calculation
+  const setupCost = 12500;
+  const baseGuestCost = 180;
+
+  function calculateAmount() {
+    const guests = parseInt(document.getElementById('guests').value) || 0;
+    let perGuestCost = baseGuestCost;
+
+    // Apply cost logic
+    if (guests > 450) {
+      perGuestCost = 150;
+    } else if (guests > 250) {
+      perGuestCost = 120;
+    }
+
+    const totalAmount = setupCost + (perGuestCost * guests);
+    document.getElementById('total-amount').innerText = totalAmount;
+  }
+
+  // Clear previously stored form data and reset fields
+  document.addEventListener('DOMContentLoaded', function () {
+    localStorage.clear();
+    sessionStorage.clear();
+    document.cookie = '';
+    document.querySelector('form')?.reset();
+    calculateAmount();
+  });
+
+  // Submit the payment form
+  async function submitPaymentForm() {
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const mobile = document.getElementById('mobile').value.trim();
+    const hostId = document.getElementById('hostId').value.trim();
+    const guests = parseInt(document.getElementById('guests').value);
+    const amount = document.getElementById('total-amount').innerText;
+
+    // Validation
+    if (!name || !email || !mobile || !hostId || guests <= 0) {
+      alert('Please fill in all fields correctly.');
+      return;
+    }
+
+    const paymentData = { name, mobileNumber: mobile, hostId, amount };
+
+    try {
+      const response = await fetch('http://localhost:8000/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(paymentData)
+      });
+
+      const data = await response.json();
+      if (data.url) {
+        window.location.href = data.url; // Redirect to payment URL
+      } else {
+        alert('Failed to initiate payment. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error initiating payment:', error);
+      alert('An error occurred. Please try again later.');
+    }
+  }
+</script>
+
+</body>
+</html>
