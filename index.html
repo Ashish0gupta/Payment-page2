@@ -29,6 +29,18 @@
       padding: 30px;
       width: 100%;
       max-width: 400px;
+      position: relative;
+    }
+
+    .logo {
+      position: absolute;
+      top: -30px;
+      left: 20px;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin: 50px;
     }
 
     .container h4 {
@@ -40,7 +52,7 @@
 
     .container .plan {
       text-align: center;
-      font-size: 2.5em;
+      font-size: 2.4em;
       font-weight: bold;
       color: #555;
       margin-bottom: 20px;
@@ -102,10 +114,13 @@
   </style>
 </head>
 <body>
-
+  <img src="logo.png" alt="Logo" class="logo">
 <div class="container">
-  <!-- Standard Plan Heading -->
-  <div class="plan">Premium Plan</div>
+  <!-- Logo -->
+  
+
+  <!-- Updated Plan Heading -->
+  <div class="plan">Atithidev Premium Plan</div>
   <h4>Secure Payment</h4>
 
   <!-- Form Fields -->
@@ -123,11 +138,11 @@
   <input type="text" id="hostId" name="hostId" placeholder="Enter Referral ID" required>
 
   <label for="guests">Number of Guests:</label>
-  <input type="number" id="guests" name="guests" min="1" value="1" onchange="calculateAmount()">
+  <input type="number" id="guests" name="guests" min="1" placeholder="Enter number of guests" onchange="calculateAmount()">
 
   <!-- Total Amount Display -->
   <div class="amount-display">
-    Total Amount: ₹<span id="total-amount">12500</span>
+    Total Amount: ₹<span id="total-amount">0</span>
   </div>
 
   <button onclick="submitPaymentForm()">Proceed to Pay</button>
@@ -149,7 +164,7 @@
       perGuestCost = 120;
     }
 
-    const totalAmount = setupCost + (perGuestCost * guests);
+    const totalAmount = guests > 0 ? setupCost + (perGuestCost * guests) : 0;
     document.getElementById('total-amount').innerText = totalAmount;
   }
 
